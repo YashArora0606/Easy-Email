@@ -130,12 +130,12 @@ def createMessageWithAttachment(
 
 def send_email(destination_email, message_template_html, message_template_plain):
     to = destination_email
-    sender = '''\"Anis Tariq\"'''
+    sender = '''\"Yash Arora\"'''
     subject = "Looking for Engineering Internship"
     msgHtml = message_template_html
     msgPlain = message_template_plain
 
-    SendMessage(sender, to, subject, msgHtml, msgPlain, 'anis_resume.pdf')
+    SendMessage(sender, to, subject, msgHtml, msgPlain, "YashArora_SE.pdf")
 
 def parse_data(name_recruiter, destination_email, company_name):
     message_template_html = """
@@ -154,7 +154,7 @@ def parse_data(name_recruiter, destination_email, company_name):
     <div>I'm looking for a summer 2020 internship - attached is my resume. If there's a potential fit, please do let me know. Happy to chat.</div>
     <div>&nbsp;</div>
     <div>Thanks,</div>
-    <p>Anis</p>
+    <p>Yash</p>
     """.format(name_recruiter, company_name)
 
     message_template_plain = """
@@ -172,7 +172,7 @@ def parse_data(name_recruiter, destination_email, company_name):
     I'm looking for a summer 2020 internship - attached is my resume. If there's a potential fit, please do let me know. Happy to chat.
 
     Thanks,
-    Anis
+    Yash
     """.format(name_recruiter, company_name)
 
     send_email(destination_email, message_template_html, message_template_plain)
