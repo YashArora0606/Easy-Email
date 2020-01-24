@@ -141,7 +141,7 @@ def parse_data(name_recruiter, destination_email, company_name):
     message_template_html = """
     <p>Hi {0},</p>
     <div>&nbsp;</div>
-    <div>My name is Jeff and I'm a Computer Science student at McMaster University. I found your email on Linkedin, I hope you don't mind this cold introduction.</div>
+    <div>I’m Yash Arora, a Software Engineering student at the University of Waterloo. I am incredibly interested in a 4 month co-op internship at {1} during the spring/summer 2020 term, and I hope I am in contact with the right person.</div>
     <div>&nbsp;</div>
     <div>I'm very interested in a software engineering internship at {1}. I've heard great things about the culture at {1} and I would see an internship as an opportunity to both learn from experts and make an impact on the product.&nbsp;</div>
     <div>&nbsp;</div>
@@ -160,19 +160,18 @@ def parse_data(name_recruiter, destination_email, company_name):
     message_template_plain = """
     Hi {0},
 
+    I’m Yash Arora, a Software Engineering student at the University of Waterloo. I am incredibly interested in a 4 month co-op internship at {1} during the spring/summer 2020 term, and I hope I am in contact with the right person.
+    As someone who has a genuine passion for software, {1} struck me as the ideal place to apply - I’ve heard great things about the culture and I am intrigued by the innovative nature of the company. 
+    During my recent internship at Hatch, I worked on prototyping a system for managing how messages were delivered to clients, in addition to automating tasks that would take up valuable company time and resources.
+    I’m most proficient in Python, C, C++, and Java, but I also have experience with a variety of other coding languages, frameworks, tools, and platforms.
+    Though working with ML and data is my passion, I have experience in software development from low-level to full-stack.
+    More about work I’ve done in the past is up at www.yasharora.com, where you can also find my LinkedIn, Github, and additional contact.
 
-    My name is Jeff and I'm a Computer Science student at McMaster University. I found your email on Linkedin, I hope you don't mind this cold introduction.
+    I have attached my resume as well, and I hope I am great fit for {1}. If so, please let me know as I would love to set up a time to chat. 
 
-    I'm very interested in a software engineering internship at {1}. I've heard great things about the culture at {1} and I would see an internship as an opportunity to both learn from experts and make an impact on the product. 
+    Thank you so much,
 
-    I previously interned at Zume, Inc in Mountain View, CA on their software engineering team where I made routes between our pickup-service and the hardware systems and crafted an integration test plan while heavily using Redis and RabbitMQ along with typescript/javascript.
-
-    I also have extensive experience with Python and Rails development in a production environment.
-
-    I'm looking for a summer 2020 internship - attached is my resume. If there's a potential fit, please do let me know. Happy to chat.
-
-    Thanks,
-    Yash
+    Yash.
     """.format(name_recruiter, company_name)
 
     send_email(destination_email, message_template_html, message_template_plain)
