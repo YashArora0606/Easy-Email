@@ -5,6 +5,7 @@ import os
 import oauth2client
 from oauth2client import client, tools, file
 import base64
+from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from apiclient import errors, discovery
@@ -12,10 +13,10 @@ import mimetypes
 from email.mime.image import MIMEImage
 from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
+from email.mime.application import MIMEApplication
 import pdb
 import csv
 import sys
-print sys.getdefaultencoding()
 
 
 SCOPES = 'https://www.googleapis.com/auth/gmail.send'
@@ -105,80 +106,92 @@ def createMessageWithAttachment(
         content_type = 'application/octet-stream'
     main_type, sub_type = content_type.split('/', 1)
     if main_type == 'text':
-        fp = open(attachmentFile, 'rb')
-        msg = MIMEText(fp.read(), _subtype=sub_type)
-        fp.close()
+        with open(attachmentFile) as fp:
+            # Note: we should handle calculating the charset
+            msg = MIMEText(fp.read(), _subtype=sub_type)
     elif main_type == 'image':
-        fp = open(attachmentFile, 'rb')
-        msg = MIMEImage(fp.read(), _subtype=sub_type)
-        fp.close()
+        with open(attachmentFile, 'rb') as fp:
+            msg = MIMEImage(fp.read(), _subtype=sub_type)
     elif main_type == 'audio':
-        fp = open(attachmentFile, 'rb')
-        msg = MIMEAudio(fp.read(), _subtype=sub_type)
-        fp.close()
+        with open(attachmentFile, 'rb') as fp:
+            msg = MIMEAudio(fp.read(), _subtype=sub_type)
     else:
-        fp = open(attachmentFile, 'rb')
-        msg = MIMEBase(main_type, sub_type)
-        msg.set_payload(fp.read())
-        fp.close()
+        with open(attachmentFile, 'rb') as fp:
+            msg = MIMEBase(main_type, sub_type)
+            msg.set_payload(fp.read())
+        # Encode the payload using Base64
+        encoders.encode_base64(msg)
     filename = os.path.basename(attachmentFile)
     msg.add_header('Content-Disposition', 'attachment', filename=filename)
     message.attach(msg)
 
-    return {'raw': base64.urlsafe_b64encode(message.as_string())}
+    return {'raw': base64.urlsafe_b64encode(message.as_string().encode()).decode()}
 
 
-def send_email(destination_email, message_template_html, message_template_plain):
+def send_email(destination_email, message_template_html, message_template_plain, company_name):
     to = destination_email
     sender = '''\"Yash Arora\"'''
-    subject = "Looking for Engineering Internship"
+    subject = "2021 Software Engineering Internship at " + company_name
     msgHtml = message_template_html
     msgPlain = message_template_plain
 
-    SendMessage(sender, to, subject, msgHtml, msgPlain, "YashArora_SE.pdf")
+    SendMessage(sender, to, subject, msgHtml, msgPlain, "YashArora_Resume.pdf")
 
 def parse_data(name_recruiter, destination_email, company_name):
     message_template_html = """
-    <p>Hi {0},</p>
+    <p>Hi {0}!</p>
+    <div>I'm Yash, a Software Engineering student from the University of Waterloo. I found myself extremely interested in a software internship at {1}, and I wanted to reach out to you personally!</div>
     <div>&nbsp;</div>
-    <div>I’m Yash Arora, a Software Engineering student at the University of Waterloo. I am incredibly interested in a 4 month co-op internship at {1} during the spring/summer 2020 term, and I hope I am in contact with the right person.</div>
-    <div>&nbsp;</div>
-    <div>I'm very interested in a software engineering internship at {1}. I've heard great things about the culture at {1} and I would see an internship as an opportunity to both learn from experts and make an impact on the product.&nbsp;</div>
-    <div>&nbsp;</div>
-    <div>&nbsp;</div>
-    <div>I previously interned at Zume Inc in their software engineering team where I made routes between our pickup-service and the hardware systems and crafted an integration test plan while heavily using Redis and RabbitMQ along with typescript/javascript.
+    <div>
+    Recently I interned at Localintel, a Seattle startup, where I led the development of their client management portal in addition to improving the efficiency and functionality of their platforms.
+    Now, I'd love to bring my skills to your table.
+    In terms of experience, I've worked extensively with Python, C++, Java, and Javascript (Frameworks), and am familiar with a variety of other languages and tools. 
+    As a software enthusiast I'm always working on something new, with my most recent endeavor being the creation of an online collaborative code editor/whiteboard 
+    (that you can try for yourself) called <a href="https://itsohana.com">Ohana</a>. 
+    If you'd like more detail about the work I've done, feel free to check out my resume; it's attached in this email!
+    I'd just like to add that I am a citizen in both the US and Canada, so I don't require any sponsorship of any kind.&nbsp;
     </div>
     <div>&nbsp;</div>
-    <div>I also have extensive experience with Python and Rails development in a production environment.</div>
+    <div>I'm extremely excited to (hopefully!) meet some of the knowledgeable and passionate people behind {1}. I'd definitely love it if we could set up a time to chat.</div>
     <div>&nbsp;</div>
-    <div>I'm looking for a summer 2020 internship - attached is my resume. If there's a potential fit, please do let me know. Happy to chat.</div>
+    <div>Thank you so much!</div>
     <div>&nbsp;</div>
-    <div>Thanks,</div>
-    <p>Yash</p>
+    <div>&nbsp;</div>
+    <p>Yash Arora<br></p>
+    <small>
+    <a href="https://www.yasharora.com">Personal Website<br></a>
+    <a href="https://www.linkedin.com/in/yasharora0606/">LinkedIn<br></a>
+    <a href="https://github.com/YashArora0606">GitHub<br></a>
+    </small>
     """.format(name_recruiter, company_name)
 
     message_template_plain = """
     Hi {0},
 
-    I’m Yash Arora, a Software Engineering student at the University of Waterloo. I am incredibly interested in a 4 month co-op internship at {1} during the spring/summer 2020 term, and I hope I am in contact with the right person.
-    As someone who has a genuine passion for software, {1} struck me as the ideal place to apply - I’ve heard great things about the culture and I am intrigued by the innovative nature of the company. 
-    During my recent internship at Hatch, I worked on prototyping a system for managing how messages were delivered to clients, in addition to automating tasks that would take up valuable company time and resources.
-    I’m most proficient in Python, C, C++, and Java, but I also have experience with a variety of other coding languages, frameworks, tools, and platforms.
-    Though working with ML and data is my passion, I have experience in software development from low-level to full-stack.
-    More about work I’ve done in the past is up at www.yasharora.com, where you can also find my LinkedIn, Github, and additional contact.
+    I'm Yash, a Software Engineering student from the University of Waterloo. I found myself extremely interested in a software internship at {1}, and I wanted to reach out to you personally!
 
-    I have attached my resume as well, and I hope I am great fit for {1}. If so, please let me know as I would love to set up a time to chat. 
+    Recently I interned at Localintel, a Seattle startup, where I led the development of their client management portal in addition to improving the efficiency and functionality of their platforms.
+    Now, I'd love to bring my skills to your table.
+    In terms of experience, I've worked extensively with Python, C++, Java, and Javascript (Frameworks), and am familiar with a variety of other languages and tools. 
+    As a software enthusiast I'm always working on something new, with my most recent endeavor being the creation of an online collaborative code editor/whiteboard 
+    (that you can try for yourself) called Ohana.
+    If you'd like more detail about the work I've done, feel free to check out my resume; it's attached it in this email!
+    I'd just like to add that I am a citizen in both the US and Canada, so I don't require any sponsorship of any kind.
+
+    I'm extremely excited to (hopefully!) meet some of the knowledgable and passionate people behind {1}. I'd definitely love it if we could set up a time to chat.
 
     Thank you so much,
+
 
     Yash.
     """.format(name_recruiter, company_name)
 
-    send_email(destination_email, message_template_html, message_template_plain)
+    send_email(destination_email, message_template_html, message_template_plain, company_name)
 
 def main():
+    print(sys.getdefaultencoding())
 
-    with open("recruiter_raw_data.csv", "rb") as f:
+    with open("recruiter_raw_data.csv", "r") as f:
         reader = csv.reader(f)
         firstLine = True
 
